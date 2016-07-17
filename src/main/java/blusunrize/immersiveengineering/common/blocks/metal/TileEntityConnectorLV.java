@@ -4,6 +4,7 @@ import static blusunrize.immersiveengineering.common.util.Utils.toIIC;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import blusunrize.immersiveengineering.api.energy.IImmersiveConnectable;
@@ -239,7 +240,7 @@ public class TileEntityConnectorLV extends TileEntityImmersiveConnectable implem
 				return 0;
 
 			int sum = 0;
-			HashMap<AbstractConnection,Integer> powerSorting = new HashMap<AbstractConnection,Integer>();
+			HashMap<AbstractConnection,Integer> powerSortingMax = new HashMap<AbstractConnection,Integer>();
 			for(AbstractConnection con : outputs)
 			{
 				IImmersiveConnectable end = toIIC(con.end, worldObj);
@@ -249,19 +250,44 @@ public class TileEntityConnectorLV extends TileEntityImmersiveConnectable implem
 					int tempR = end.outputEnergy(atmOut, true, energyType);
 					if(tempR>0)
 					{
-						powerSorting.put(con, tempR);
+						powerSortingMax.put(con, tempR);
 						sum += tempR;
 					}
 				}
 			}
 
 			if(sum>0)
-				for(AbstractConnection con : powerSorting.keySet())
+			{
+				HashMap<AbstractConnection, Integer> outMap = new HashMap<>();
+				int outSum = 0;
+				for(AbstractConnection con : powerSortingMax.keySet())
+				{
+					float prio = powerSortingMax.get(con)/(float)sum;
+					int output = (int)(powerForSort*prio);
+					outSum += output;
+					outMap.put(con, output);
+				}
+				while (outSum<powerForSort)
+				{
+					Iterator<AbstractConnection> it = outMap.keySet().iterator();
+					while (outSum<powerForSort&&it.hasNext())
+					{
+						AbstractConnection curr = it.next();
+						int old = outMap.get(curr);
+						if (old<curr.cableType.getTransferRate())
+						{
+							outMap.put(curr, old+1);
+							outSum++;
+						}
+					}
+				}
+				for(AbstractConnection con : outMap.keySet())
+
 				{
 					IImmersiveConnectable end = toIIC(con.end, worldObj);
 					if(con.cableType!=null && end!=null)
 					{
-						int output = powerSorting.get(con);
+						int output = outMap.get(con);
 
 						int tempR = end.outputEnergy(Math.min(output, con.cableType.getTransferRate()), true, energyType);
 						int r = tempR;
@@ -296,6 +322,7 @@ public class TileEntityConnectorLV extends TileEntityImmersiveConnectable implem
 							break;
 					}
 				}
+			}
 		}
 		return received;
 	}
