@@ -7,6 +7,7 @@ import blusunrize.immersiveengineering.api.energy.wires.ImmersiveNetHandler.Conn
 import blusunrize.immersiveengineering.api.shader.ShaderRegistry;
 import blusunrize.immersiveengineering.api.tool.ExcavatorHandler;
 import blusunrize.immersiveengineering.api.tool.ExcavatorHandler.MineralWorldInfo;
+import blusunrize.immersiveengineering.common.util.IELogger;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -31,6 +32,7 @@ public class IESaveData extends WorldSavedData
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
+		IELogger.info("Reading connection NBT");
 		int[] savedDimensions = nbt.getIntArray("savedDimensions");
 		for(int dim: savedDimensions)
 		{
@@ -43,6 +45,10 @@ public class IESaveData extends WorldSavedData
 				if(con!=null)
 				{
 					ImmersiveNetHandler.INSTANCE.addConnection(dim, con.start, con);
+				}
+				else
+				{
+					IELogger.info("Could not read connection from tag: "+conTag);
 				}
 			}
 		}
@@ -87,6 +93,7 @@ public class IESaveData extends WorldSavedData
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
+		IELogger.info("Writing connection NBT");
 		Integer[] relDim = ImmersiveNetHandler.INSTANCE.getRelevantDimensions().toArray(new Integer[0]);
 		int[] savedDimensions = new int[relDim.length];
 		for(int ii=0; ii<relDim.length; ii++)
@@ -153,4 +160,9 @@ public class IESaveData extends WorldSavedData
 			INSTANCE=in;
 	}
 
+	@Override
+	public boolean isDirty() {
+		IELogger.info("Checked if IESaveData is dirty. Forcing true, really "+super.isDirty());
+		return true;
+	}
 }

@@ -112,12 +112,6 @@ public class EventHandler
 		//		}
 		ImmersiveEngineering.proxy.onWorldLoad();
 	}
-	//transferPerTick
-	@SubscribeEvent
-	public void onSave(WorldEvent.Save event)
-	{
-		IESaveData.setDirty(0);
-	}
 	@SubscribeEvent
 	public void onUnload(WorldEvent.Unload event)
 	{

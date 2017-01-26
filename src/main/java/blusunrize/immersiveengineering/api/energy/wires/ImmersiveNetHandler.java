@@ -72,7 +72,8 @@ public class ImmersiveNetHandler
 			getMultimap(world).put(node, newSetFromMap(new ConcurrentHashMap<Connection, Boolean>()));
 		getMultimap(world).get(node).add(con);
 		resetCachedIndirectConnections();
-		IESaveData.setDirty(world);
+		//Should not be necessary as long as this is only used for loading conns from IESaveData
+		//IESaveData.setDirty(world);
 	}
 
 	public void removeConnection(World world, Connection con)
@@ -140,7 +141,10 @@ public class ImmersiveNetHandler
 	public void clearConnectionsOriginatingFrom(BlockPos node, World world)
 	{
 		if(getMultimap(world.provider.getDimension()).containsKey(node))
+		{
 			getMultimap(world.provider.getDimension()).get(node).clear();
+			IESaveData.setDirty(world.provider.getDimension());
+		}
 		resetCachedIndirectConnections();
 	}
 
