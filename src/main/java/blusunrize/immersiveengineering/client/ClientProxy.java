@@ -1462,9 +1462,11 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void removeStateFromConnectionModelCache(IExtendedBlockState state)
 	{
-		for (BlockRenderLayer r:BlockRenderLayer.values())
-			ConnModelReal.cache.remove(new ExtBlockstateAdapter(state, r, ImmutableSet.of()));
-		ConnModelReal.cache.remove(new ExtBlockstateAdapter(state, null, ImmutableSet.of()));
+		//TODO change ExtBlockstateAdapter to be able to do this with some hashing magic
+		ConnModelReal.cache.entrySet().removeIf((entry)->{
+			ExtBlockstateAdapter entryState = entry.getKey().getRight();
+			return entryState.doesStateEqual(state);
+		});
 	}
 	@Override
 	public void clearConnectionModelCache()

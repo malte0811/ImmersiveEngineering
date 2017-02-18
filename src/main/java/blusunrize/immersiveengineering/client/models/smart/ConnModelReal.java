@@ -217,33 +217,7 @@ public class ConnModelReal implements IBakedModel
 				return false;
 			if (!Arrays.equals(additionalProperties, o.additionalProperties))
 				return false;
-			for(IProperty<?> i : state.getPropertyNames())
-			{
-				if(!o.state.getProperties().containsKey(i))
-					return false;
-				if (ignoredProperties.contains(i))
-					continue;
-				Object valThis = state.getValue(i);
-				Object valOther = o.state.getValue(i);
-				if(valThis==null&&valOther==null)
-					continue;
-				else if(valOther == null || !valOther.equals(state.getValue(i)))
-					return false;
-			}
-			for(IUnlistedProperty<?> i : state.getUnlistedNames())
-			{
-				if(!o.state.getUnlistedProperties().containsKey(i))
-					return false;
-				if (ignoredProperties.contains(i))
-					continue;
-				Object valThis = state.getValue(i);
-				Object valOther = o.state.getValue(i);
-				if(valThis==null&&valOther==null)
-					continue;
-				else if (valOther == null || !valOther.equals(valThis))
-					return false;
-			}
-			return true;
+			return doesStateEqual(o.state);
 		}
 
 		@Override
@@ -267,6 +241,38 @@ public class ConnModelReal implements IBakedModel
 				}
 			val = prime*val+Arrays.hashCode(additionalProperties);
 			return val;
+		}
+
+		public boolean doesStateEqual(IExtendedBlockState state)
+		{
+			for(IProperty<?> i : state.getPropertyNames())
+			{
+				if(!state.getProperties().containsKey(i))
+					return false;
+				if (ignoredProperties.contains(i))
+					continue;
+				Object valThis = state.getValue(i);
+				Object valOther = state.getValue(i);
+				if(!valOther.equals(valThis))
+					return false;
+			}
+			for(IUnlistedProperty<?> i : state.getUnlistedNames())
+			{
+				if(!state.getUnlistedProperties().containsKey(i))
+					return false;
+				if (ignoredProperties.contains(i))
+					continue;
+				Object valThis = state.getValue(i);
+				Object valOther = state.getValue(i);
+				if (valThis!=valOther&&(valOther == null || !valOther.equals(valThis)))
+					return false;
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "ExtBlockstateAdapter:{"+state.toString()+", layer="+layer+", ignored="+ignoredProperties+", additional="+Arrays.toString(additionalProperties)+"}";
 		}
 	}
 
