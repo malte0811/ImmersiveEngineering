@@ -145,6 +145,7 @@ public class ClientProxy extends CommonProxy
 	public void preInit()
 	{
 		ClientUtils.mc().getFramebuffer().enableStencil();//Enabling FBO stencils
+		Shaders.initShaders(true);
 		ModelLoaderRegistry.registerLoader(IEOBJLoader.instance);
 		OBJLoader.INSTANCE.addDomain("immersiveengineering");
 		IEOBJLoader.instance.addDomain("immersiveengineering");

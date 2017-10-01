@@ -3,17 +3,15 @@ package blusunrize.immersiveengineering.client.render;
 import blusunrize.immersiveengineering.client.ClientUtils;
 import blusunrize.immersiveengineering.common.blocks.metal.TileEntityTeslaCoil;
 import blusunrize.immersiveengineering.common.blocks.metal.TileEntityTeslaCoil.LightningAnimation;
-import blusunrize.immersiveengineering.common.util.Utils;
+import blusunrize.immersiveengineering.common.util.BinaryTree;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Iterator;
-import java.util.List;
 
 public class TileRenderTeslaCoil extends TileEntitySpecialRenderer<TileEntityTeslaCoil>
 {
@@ -31,14 +29,14 @@ public class TileRenderTeslaCoil extends TileEntitySpecialRenderer<TileEntityTes
 		while(animationIt.hasNext())
 		{
 			LightningAnimation animation = animationIt.next();
-			if(animation.shoudlRecalculateLightning())
-				animation.createLightning(Utils.RAND);
 
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x, y, z);
 
 			GlStateManager.disableTexture2D();
 			GlStateManager.enableBlend();
+			GlStateManager.shadeModel(GL11.GL_SMOOTH);
+			GlStateManager.enableCull();
 
 
 			double tx = tile.getPos().getX();
@@ -46,34 +44,77 @@ public class TileRenderTeslaCoil extends TileEntitySpecialRenderer<TileEntityTes
 			double tz = tile.getPos().getZ();
 			float curWidth = GL11.glGetFloat(GL11.GL_LINE_WIDTH);
 			drawAnimation(animation, tx,ty,tz, new float[]{77/255f,74/255f,152/255f, .75f}, 4f);
-			drawAnimation(animation, tx,ty,tz, new float[]{1,1,1,1}, 1f);
 			GL11.glLineWidth(curWidth);
 			
 			GlStateManager.enableTexture2D();
 			GlStateManager.disableBlend();
+			GlStateManager.shadeModel(GL11.GL_FLAT);
 
 			GlStateManager.popMatrix();
+			break;
 		}
 		GL11.glPopAttrib();
 		setLightmapDisabled(false);
 	}
 	
-	public static void drawAnimation(LightningAnimation animation, double tileX, double tileY, double tileZ, float[] rgba, float lineWidth)
+	public void drawAnimation(LightningAnimation animation, double tileX, double tileY, double tileZ, float[] rgba, float lineWidth)
 	{
-		GlStateManager.color(rgba[0],rgba[1],rgba[2],rgba[3]);
-		GL11.glLineWidth(lineWidth);
 		Tessellator tes = ClientUtils.tes();
 		BufferBuilder worldrenderer = tes.getBuffer();
-		worldrenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
-		List<Vec3d> subs = animation.subPoints;
-		worldrenderer.pos(animation.startPos.x-tileX,animation.startPos.y-tileY,animation.startPos.z-tileZ).endVertex();
-		
-		for(int i=0; i<subs.size(); i++)
-			worldrenderer.pos(subs.get(i).x-tileX,subs.get(i).y-tileY,subs.get(i).z-tileZ).endVertex();
+		GlStateManager.translate(0, 2, 0);
+		GlStateManager.rotate(-45, 1, 0, 0);
+		if (animation!=null&&animation.structure!=null)
+		{
+			drawTree(animation.structure, worldrenderer, tes);
+		}
+	}
 
-		Vec3d end = (animation.targetEntity!=null?animation.targetEntity.getPositionVector():animation.targetPos).addVector(-tileX,-tileY,-tileZ);
-		worldrenderer.pos(end.x,end.y,end.z).endVertex();
-
+	//This is absolutely horrible, but I want to see whether the generation code works
+	private void drawTree(BinaryTree<LightningAnimation.StreamerNode> tree, BufferBuilder worldrenderer, Tessellator tes) {
+		Shaders.useShader(Shaders.TESLA_STREAMER);
+		double widthFactor = .1/(double) LightningAnimation.MAX_DEPTH;
+		GlStateManager.pushMatrix();
+		GlStateManager.rotate((float)tree.content.angle, (float) tree.content.axis.x,
+				(float) tree.content.axis.y,
+				(float) tree.content.axis.z);
+		GlStateManager.color(1,1,1,1);
+		worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+		drawSection(tree.content.length, (tree.getDepth()+1)* widthFactor,
+				tree.getDepth()* widthFactor, worldrenderer);
 		tes.draw();
+		GlStateManager.translate(0, tree.content.length, 0);
+		if (tree.getLeft()!=null) {
+			drawTree(tree.getLeft(), worldrenderer, tes);
+		}
+		if (tree.getRight()!=null) {
+			drawTree(tree.getRight(), worldrenderer, tes);
+		}
+		GlStateManager.popMatrix();
+		Shaders.stopUsingShaders();
+	}
+	private void drawSection(double length, double diaBottom, double diaTop, BufferBuilder worldrenderer) {
+		//drawPart(length, diaBottom/4, diaTop/4, worldrenderer);
+		drawPart(length, diaBottom, diaTop, worldrenderer);
+	}
+
+	private void drawPart(double length, double diaBottom, double diaTop, BufferBuilder worldrenderer)
+	{
+		worldrenderer.pos(-diaBottom / 2, 0, 0).color(0, 1, 0, 1f).endVertex();
+		worldrenderer.pos(-diaTop / 2, length, 0).color(0, 0, 0, 1f).endVertex();
+		worldrenderer.pos(diaTop / 2, length, 0).color(1, 0, 0, 1f).endVertex();
+		worldrenderer.pos(diaBottom / 2, 0, 0).color(1, 1, 0, 1f).endVertex();
+		worldrenderer.pos(0, 0, -diaBottom / 2).color(0, 1, 0, 1f).endVertex();
+		worldrenderer.pos(0, length, -diaTop / 2).color(0, 0, 0, 1f).endVertex();
+		worldrenderer.pos(0, length, diaTop / 2).color(1, 0, 0, 1f).endVertex();
+		worldrenderer.pos(0, 0, diaBottom / 2).color(1, 1, 0, 1f).endVertex();
+
+		worldrenderer.pos(-diaTop / 2, length, 0).color(0, 0, 0, 1f).endVertex();
+		worldrenderer.pos(-diaBottom / 2, 0, 0).color(0, 1, 0, 1f).endVertex();
+		worldrenderer.pos(diaBottom / 2, 0, 0).color(1, 1, 0, 1f).endVertex();
+		worldrenderer.pos(diaTop / 2, length, 0).color(1, 0, 0, 1f).endVertex();
+		worldrenderer.pos(0, length, -diaTop / 2).color(0, 0, 0, 1f).endVertex();
+		worldrenderer.pos(0, 0, -diaBottom / 2).color(0, 1, 0, 1f).endVertex();
+		worldrenderer.pos(0, 0, diaBottom / 2).color(1, 1, 0, 1f).endVertex();
+		worldrenderer.pos(0, length, diaTop / 2).color(1, 0, 0, 1f).endVertex();
 	}
 }
