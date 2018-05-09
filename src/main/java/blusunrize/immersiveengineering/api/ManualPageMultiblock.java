@@ -15,6 +15,8 @@ import blusunrize.lib.manual.ManualPages;
 import blusunrize.lib.manual.ManualUtils;
 import blusunrize.lib.manual.gui.GuiButtonManualNavigation;
 import blusunrize.lib.manual.gui.GuiManual;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -28,18 +30,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.structure.template.Template;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class ManualPageMultiblock extends ManualPages
 {
@@ -62,20 +64,6 @@ public class ManualPageMultiblock extends ManualPages
 	{
 		super(manual, text);
 		this.multiblock = multiblock;
-
-		if(multiblock.getStructureManual()!=null)
-		{
-//			scale = size[0] > size[1] ? width / size[0] - 10F : height / size[1] - 10F;
-//			if(scale * size[0] > width) {
-//				scale = width / size[0] - 10F;
-//			}
-//
-//			xTranslate = x + width / 2;// - (size[0] * scale) / 2;
-//			yTranslate = y + height / 2;// - (size[1] * scale) / 2;
-//
-//			w = size[0] * scale;
-//			h = size[1] * scale;
-		}
 	}
 
 
@@ -87,18 +75,19 @@ public class ManualPageMultiblock extends ManualPages
 		{
 			this.renderInfo = new MultiblockRenderInfo(multiblock);
 			this.blockAccess = new MultiblockBlockAccess(renderInfo);
-			transX = x+60 + renderInfo.structureWidth/2;
-			transY = y+35 + (float)Math.sqrt(renderInfo.structureHeight*renderInfo.structureHeight + renderInfo.structureWidth*renderInfo.structureWidth + renderInfo.structureLength*renderInfo.structureLength)/2;
+			transX = x+60 + renderInfo.size.getX()/2;
+			double diagonal = renderInfo.size.getDistance(0, 0, 0);
+			transY = y+35 + (float)diagonal/2;
 			rotX=25;
 			rotY=-45;
 			scale = multiblock.getManualScale();
 			boolean canRenderFormed = multiblock.canRenderFormedStructure();
 
-			yOff = (int)(transY+scale*Math.sqrt(renderInfo.structureHeight*renderInfo.structureHeight + renderInfo.structureWidth*renderInfo.structureWidth + renderInfo.structureLength*renderInfo.structureLength)/2);
+			yOff = (int)(transY+scale*diagonal/2);
 			pageButtons.add(new GuiButtonManualNavigation(gui, 100, x+4, (int)transY-(canRenderFormed?11:5), 10,10, 4));
 			if(canRenderFormed)
 				pageButtons.add(new GuiButtonManualNavigation(gui, 103, x+4, (int)transY+1, 10,10, 6));
-			if(this.renderInfo.structureHeight>1)
+			if(this.renderInfo.size.getY()>1)
 			{
 				pageButtons.add(new GuiButtonManualNavigation(gui, 101, x+4, (int)transY-(canRenderFormed?14:8)-16, 10,16, 3));
 				pageButtons.add(new GuiButtonManualNavigation(gui, 102, x+4, (int)transY+(canRenderFormed?14:8), 10,16, 2));
@@ -108,7 +97,7 @@ public class ManualPageMultiblock extends ManualPages
 		IngredientStack[] totalMaterials = this.multiblock.getTotalMaterials();
 		if(totalMaterials != null)
 		{
-			componentTooltip = new ArrayList();
+			componentTooltip = new ArrayList<>();
 			componentTooltip.add(I18n.format("desc.immersiveengineering.info.reqMaterial"));
 			int maxOff = 1;
 			boolean hasAnyItems = false;
@@ -172,11 +161,8 @@ public class ManualPageMultiblock extends ManualPages
 				} else if(++tick % 20 == 0)
 					renderInfo.step();
 
-				int structureLength = renderInfo.structureLength;
-				int structureWidth = renderInfo.structureWidth;
-				int structureHeight = renderInfo.structureHeight;
-
-				int yOffTotal = (int)(transY-y+scale*Math.sqrt(renderInfo.structureHeight*renderInfo.structureHeight + renderInfo.structureWidth*renderInfo.structureWidth + renderInfo.structureLength*renderInfo.structureLength)/2);
+				double diagonalLength = renderInfo.size.getDistance(0, 0, 0);
+				int yOffTotal = (int)(transY-y+scale*diagonalLength/2);
 
 				GlStateManager.enableRescaleNormal();
 				GlStateManager.pushMatrix();
@@ -189,14 +175,12 @@ public class ManualPageMultiblock extends ManualPages
 
 				final BlockRendererDispatcher blockRender = Minecraft.getMinecraft().getBlockRendererDispatcher();
 
-				float f = (float)Math.sqrt(structureHeight * structureHeight + structureWidth * structureWidth + structureLength * structureLength);
-
-				GlStateManager.translate(transX, transY, Math.max(structureHeight, Math.max(structureWidth, structureLength)));
+				GlStateManager.translate(transX, transY, Math.max(renderInfo.size.getX(), Math.max(renderInfo.size.getY(), renderInfo.size.getZ())));
 				GlStateManager.scale(scale, -scale, 1);
 				GlStateManager.rotate(rotX, 1, 0, 0);
 				GlStateManager.rotate(90+rotY, 0, 1, 0);
 
-				GlStateManager.translate((float)structureLength / -2f, (float)structureHeight / -2f, (float)structureWidth / -2f);
+				GlStateManager.translate(-renderInfo.size.getX() / 2f, -renderInfo.size.getY() / 2f, -renderInfo.size.getZ() / 2f);
 
 				GlStateManager.disableLighting();
 
@@ -210,29 +194,26 @@ public class ManualPageMultiblock extends ManualPages
 				if(showCompleted && multiblock.canRenderFormedStructure())
 					multiblock.renderFormedStructure();
 				else
-					for(int h = 0; h < structureHeight; h++)
-						for(int l = 0; l < structureLength; l++)
-							for(int w = 0; w < structureWidth; w++)
+					for (int block = 0; block < renderInfo.blockIndex; block++)
+					{
+						Template.BlockInfo info = renderInfo.data.get(block);
+						{
+							GlStateManager.translate(info.pos.getX(), info.pos.getY(), info.pos.getZ());
+							boolean b = multiblock.overwriteBlockRender(info.blockState, idx++);
+							GlStateManager.translate(-info.pos.getX(), -info.pos.getY(), -info.pos.getZ());
+							if (!b)
 							{
-								BlockPos pos = new BlockPos(l, h, w);
-								if(!blockAccess.isAirBlock(pos))
-								{
-									GlStateManager.translate(l, h, w);
-									boolean b = multiblock.overwriteBlockRender(renderInfo.data[h][l][w], idx++);
-									GlStateManager.translate(-l, -h, -w);
-									if(!b)
-									{
-										IBlockState state = blockAccess.getBlockState(pos);
-										Tessellator tessellator = Tessellator.getInstance();
-										BufferBuilder buffer = tessellator.getBuffer();
-										buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-										openBuffer = true;
-										blockRender.renderBlock(state, pos, blockAccess, buffer);
-										tessellator.draw();
-										openBuffer = false;
-									}
-								}
+								IBlockState state = blockAccess.getBlockState(info.pos);
+								Tessellator tessellator = Tessellator.getInstance();
+								BufferBuilder buffer = tessellator.getBuffer();
+								buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+								openBuffer = true;
+								blockRender.renderBlock(state, info.pos, blockAccess, buffer);
+								tessellator.draw();
+								openBuffer = false;
 							}
+						}
+					}
 
 				GlStateManager.popMatrix();
 
@@ -293,7 +274,7 @@ public class ManualPageMultiblock extends ManualPages
 		}
 		else if(button.id==101)
 		{
-			this.renderInfo.setShowLayer( Math.min(renderInfo.showLayer+1, renderInfo.structureHeight-1));
+			this.renderInfo.setShowLayer( Math.min(renderInfo.showLayer+1, renderInfo.size.getY()-1));
 		}
 		else if(button.id==102)
 		{
@@ -313,71 +294,49 @@ public class ManualPageMultiblock extends ManualPages
 	static class MultiblockBlockAccess implements IBlockAccess
 	{
 		private final MultiblockRenderInfo data;
-		private final IBlockState[][][] structure;
+		private Map<BlockPos, IBlockState> structure;
 
 		public MultiblockBlockAccess(MultiblockRenderInfo data)
 		{
 			this.data = data;
-			final int[] index = {0};//Nasty workaround, but IDEA suggested it =P
-			this.structure = Arrays.stream(data.data).map(layer -> {
-				return Arrays.stream(layer).map(row -> {
-					return Arrays.stream(row).map(itemstack -> {
-						return convert(index[0]++, itemstack);
-					}).collect(Collectors.toList()).toArray(new IBlockState[0]);
-				}).collect(Collectors.toList()).toArray(new IBlockState[0][]);
-			}).collect(Collectors.toList()).toArray(new IBlockState[0][][]);
-		}
-
-		private IBlockState convert(int index, ItemStack itemstack)
-		{
-			if (itemstack == null)
-				return Blocks.AIR.getDefaultState();
-			IBlockState state = data.multiblock.getBlockstateFromStack(index, itemstack);
-			if(state!=null)
-				return state;
-			return Blocks.AIR.getDefaultState();
+			structure = new HashMap<>(data.maxBlockIndex);
+			for (Template.BlockInfo info : data.data)
+				structure.put(info.pos, info.blockState);
 		}
 
 		@Nullable
 		@Override
-		public TileEntity getTileEntity(BlockPos pos)
+		public TileEntity getTileEntity(@Nonnull BlockPos pos)
 		{
 			return null;
 		}
 
 		@Override
-		public int getCombinedLight(BlockPos pos, int lightValue)
+		public int getCombinedLight(@Nonnull BlockPos pos, int lightValue)
 		{
 			// full brightness always
 			return 15 << 20 | 15 << 4;
 		}
 
+		@Nonnull
 		@Override
-		public IBlockState getBlockState(BlockPos pos)
+		public IBlockState getBlockState(@Nonnull BlockPos pos)
 		{
-			int x = pos.getX();
-			int y = pos.getY();
-			int z = pos.getZ();
-
-			if(y >= 0 && y < structure.length)
-				if(x >= 0 && x < structure[y].length)
-					if(z >= 0 && z < structure[y][x].length)
-					{
-						int index = y * (data.structureLength * data.structureWidth) + x * data.structureWidth + z;
-						if(index <= data.getLimiter())
-							return structure[y][x][z];
-					}
-			return Blocks.AIR.getDefaultState();
+			if (data.shouldShow(pos))
+				return structure.getOrDefault(pos, Blocks.AIR.getDefaultState());
+			else
+				return Blocks.AIR.getDefaultState();
 		}
 
 		@Override
-		public boolean isAirBlock(BlockPos pos)
+		public boolean isAirBlock(@Nonnull BlockPos pos)
 		{
 			return getBlockState(pos).getBlock() == Blocks.AIR;
 		}
 
+		@Nonnull
 		@Override
-		public Biome getBiome(BlockPos pos)
+		public Biome getBiome(@Nonnull BlockPos pos)
 		{
 			World world = Minecraft.getMinecraft().world;
 			if (world!=null)
@@ -387,11 +346,12 @@ public class ManualPageMultiblock extends ManualPages
 		}
 
 		@Override
-		public int getStrongPower(BlockPos pos, EnumFacing direction)
+		public int getStrongPower(@Nonnull BlockPos pos, @Nonnull EnumFacing direction)
 		{
 			return 0;
 		}
 
+		@Nonnull
 		@Override
 		public WorldType getWorldType()
 		{
@@ -404,7 +364,7 @@ public class ManualPageMultiblock extends ManualPages
 		}
 
 		@Override
-		public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default)
+		public boolean isSideSolid(@Nonnull BlockPos pos, @Nonnull EnumFacing side, boolean _default)
 		{
 			return false;
 		}
@@ -413,12 +373,15 @@ public class ManualPageMultiblock extends ManualPages
 	static class MultiblockRenderInfo
 	{
 		public IMultiblock multiblock;
-		public ItemStack[][][] data;
+		public List<Template.BlockInfo> data;
+		public List<Template.BlockInfo>[] dataPerLevel;
+		private TObjectIntMap<BlockPos> indexFromPos = new TObjectIntHashMap<>();
 		public int blockCount = 0;
-		public int[] countPerLevel;
-		public int structureHeight = 0;
-		public int structureLength = 0;
-		public int structureWidth = 0;
+		/**
+		 * This includes the blocks on the level itself
+		 */
+		public int[] countUpToLevel;
+		public Vec3i size;
 		public int showLayer = -1;
 
 		private int blockIndex = -1;
@@ -427,35 +390,35 @@ public class ManualPageMultiblock extends ManualPages
 		public MultiblockRenderInfo(IMultiblock multiblock)
 		{
 			this.multiblock = multiblock;
-			init(multiblock.getStructureManual());
-			maxBlockIndex = blockIndex = structureHeight * structureLength * structureWidth;
+			init(multiblock.getStructureManual(), multiblock.getSize());
 		}
 
-		public void init(ItemStack[][][] structure)
+		@SuppressWarnings("unchecked")
+		public void init(List<Template.BlockInfo> structure, Vec3i size)
 		{
 			data = structure;
-			structureHeight = structure.length;
-			structureWidth = 0;
-			structureLength = 0;
+			data.removeIf((info)->info.blockState.getBlock()==Blocks.AIR);
+			data.sort(Comparator.comparing(i2 -> i2.pos));
+			this.size = size;
 
-			countPerLevel = new int[structureHeight];
-			blockCount = 0;
-			for(int h = 0; h < structure.length; h++)
+			countUpToLevel = new int[size.getY()];
+			dataPerLevel = new List[size.getY()];
+			for (int i = 0; i < size.getY(); i++)
+				dataPerLevel[i] = new ArrayList<>();
+			blockCount = data.size();
+			for (int i = 0; i < structure.size(); i++)
 			{
-				if(structure[h].length > structureLength)
-					structureLength = structure[h].length;
-				int perLvl = 0;
-				for(int l = 0; l < structure[h].length; l++)
-				{
-					if(structure[h][l].length > structureWidth)
-						structureWidth = structure[h][l].length;
-					for(ItemStack ss : structure[h][l])
-						if(ss != null && !ss.isEmpty())
-							perLvl++;
-				}
-				countPerLevel[h] = perLvl;
-				blockCount += perLvl;
+				Template.BlockInfo info = structure.get(i);
+				int layer = info.pos.getY();
+				dataPerLevel[layer].add(info);
+				countUpToLevel[layer]++;
+				indexFromPos.put(info.pos, i);
 			}
+			for (int i = 1; i < countUpToLevel.length; i++)
+			{
+				countUpToLevel[i] += countUpToLevel[i-1];
+			}
+			maxBlockIndex = blockIndex = data.size();
 		}
 
 		public void setShowLayer(int layer)
@@ -464,7 +427,7 @@ public class ManualPageMultiblock extends ManualPages
 			if(layer<0)
 				reset();
 			else
-				blockIndex = (layer + 1) * (structureLength * structureWidth) - 1;
+				blockIndex = countUpToLevel[layer];
 		}
 
 		public void reset()
@@ -474,29 +437,13 @@ public class ManualPageMultiblock extends ManualPages
 
 		public void step()
 		{
-			int start = blockIndex;
-			do
-			{
-				if(++blockIndex >= maxBlockIndex)
-					blockIndex = 0;
-			}
-			while(isEmpty(blockIndex) && blockIndex != start);
+			if (++blockIndex > maxBlockIndex)
+				blockIndex = 0;
 		}
 
-		private boolean isEmpty(int index)
+		public boolean shouldShow(BlockPos pos)
 		{
-			int y = index / (structureLength * structureWidth);
-			int r = index % (structureLength * structureWidth);
-			int x = r / structureWidth;
-			int z = r % structureWidth;
-
-			ItemStack stack = data[y][x][z];
-			return stack == null || stack.isEmpty();
-		}
-
-		public int getLimiter()
-		{
-			return blockIndex;
+			return indexFromPos.get(pos)<blockIndex;
 		}
 	}
 }

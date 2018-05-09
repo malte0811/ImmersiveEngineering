@@ -33,7 +33,7 @@ import blusunrize.immersiveengineering.common.blocks.cloth.TileEntityBalloon;
 import blusunrize.immersiveengineering.common.blocks.cloth.TileEntityStripCurtain;
 import blusunrize.immersiveengineering.common.blocks.metal.*;
 import blusunrize.immersiveengineering.common.blocks.metal.conveyors.*;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.*;
+import blusunrize.immersiveengineering.common.blocks.multiblocks.IEMultiblocks;
 import blusunrize.immersiveengineering.common.blocks.plant.BlockIECrop;
 import blusunrize.immersiveengineering.common.blocks.plant.BlockTypes_Hemp;
 import blusunrize.immersiveengineering.common.blocks.stone.*;
@@ -918,27 +918,28 @@ public class IEContent
 		ThermoelectricHandler.registerSourceInKelvin("blockBlutonium", 4000);
 
 		/**MULTIBLOCKS*/
-		MultiblockHandler.registerMultiblock(MultiblockCokeOven.instance);
-		MultiblockHandler.registerMultiblock(MultiblockAlloySmelter.instance);
-		MultiblockHandler.registerMultiblock(MultiblockBlastFurnace.instance);
-		MultiblockHandler.registerMultiblock(MultiblockBlastFurnaceAdvanced.instance);
-		MultiblockHandler.registerMultiblock(MultiblockMetalPress.instance);
-		MultiblockHandler.registerMultiblock(MultiblockCrusher.instance);
-		MultiblockHandler.registerMultiblock(MultiblockSheetmetalTank.instance);
-		MultiblockHandler.registerMultiblock(MultiblockSilo.instance);
-		MultiblockHandler.registerMultiblock(MultiblockAssembler.instance);
-		MultiblockHandler.registerMultiblock(MultiblockAutoWorkbench.instance);
-		MultiblockHandler.registerMultiblock(MultiblockBottlingMachine.instance);
-		MultiblockHandler.registerMultiblock(MultiblockSqueezer.instance);
-		MultiblockHandler.registerMultiblock(MultiblockFermenter.instance);
-		MultiblockHandler.registerMultiblock(MultiblockRefinery.instance);
-		MultiblockHandler.registerMultiblock(MultiblockDieselGenerator.instance);
-		MultiblockHandler.registerMultiblock(MultiblockExcavator.instance);
-		MultiblockHandler.registerMultiblock(MultiblockBucketWheel.instance);
-		MultiblockHandler.registerMultiblock(MultiblockArcFurnace.instance);
-		MultiblockHandler.registerMultiblock(MultiblockLightningrod.instance);
-		MultiblockHandler.registerMultiblock(MultiblockMixer.instance);
-		MultiblockHandler.registerMultiblock(MultiblockFeedthrough.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockCokeOven.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockAlloySmelter.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockBlastFurnace.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockBlastFurnaceAdvanced.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockMetalPress.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockCrusher.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockSheetmetalTank.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockSilo.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockAssembler.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockAutoWorkbench.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockBottlingMachine.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockSqueezer.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockFermenter.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockRefinery.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockDieselGenerator.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockExcavator.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockBucketWheel.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockArcFurnace.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockLightningrod.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockMixer.instance);
+		//MultiblockHandler.registerMultiblock(MultiblockFeedthrough.instance);
+		IEMultiblocks.register();
 
 		/**ACHIEVEMENTS*/
 //		IEAchievements.init();

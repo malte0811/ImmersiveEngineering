@@ -11,11 +11,13 @@ package blusunrize.immersiveengineering.api;
 import blusunrize.immersiveengineering.api.crafting.IngredientStack;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
@@ -23,6 +25,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author BluSunrize - 27.04.2015
@@ -31,7 +34,7 @@ import java.util.ArrayList;
  */
 public class MultiblockHandler
 {
-	static ArrayList<IMultiblock> multiblocks = new ArrayList<IMultiblock>();
+	private static ArrayList<IMultiblock> multiblocks = new ArrayList<IMultiblock>();
 
 	public static void registerMultiblock(IMultiblock multiblock)
 	{
@@ -48,7 +51,7 @@ public class MultiblockHandler
 		/**
 		 * returns name of the Multiblock. This is used for the interdiction NBT system on the hammer, so this name /must/ be unique.
 		 */
-		String getUniqueName();
+		ResourceLocation getUniqueName();
 		
 		/**
 		 * Check whether the given block can be used to trigger the structure creation of the multiblock.<br>
@@ -63,16 +66,14 @@ public class MultiblockHandler
 		boolean createStructure(World world, BlockPos pos, EnumFacing side, EntityPlayer player);
 
 		/**
-		 * A three-dimensional array (height, length, width) of the structure to be rendered in the Engineers Manual
+		 * TODO
 		 */
-		ItemStack[][][] getStructureManual();
+		List<Template.BlockInfo> getStructureManual();
 
-		default IBlockState getBlockstateFromStack(int index, ItemStack stack)
-		{
-			if(!stack.isEmpty() && stack.getItem() instanceof ItemBlock)
-				return ((ItemBlock)stack.getItem()).getBlock().getStateFromMeta(stack.getItemDamage());
-			return null;
-		}
+		/**
+		 * TODO
+		 */
+		Vec3i getSize();
 		
 		/**
 		 * An array of ItemStacks that summarizes the total amount of materials needed for the structure. Will be rendered in the Engineer's Manual
@@ -83,7 +84,7 @@ public class MultiblockHandler
 		 * Use this to overwrite the rendering of a Multiblock's Component
 		 */
 		@SideOnly(Side.CLIENT)
-		boolean overwriteBlockRender(ItemStack stack, int iterator);
+		boolean overwriteBlockRender(IBlockState stack, int iterator);
 
 		/**
 		 * returns the scale modifier to be applied when rendering the structure in the IE manual

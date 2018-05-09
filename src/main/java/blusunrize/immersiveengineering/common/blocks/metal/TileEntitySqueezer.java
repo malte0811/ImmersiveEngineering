@@ -13,7 +13,6 @@ import blusunrize.immersiveengineering.api.crafting.SqueezerRecipe;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IAdvancedCollisionBounds;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IAdvancedSelectionBounds;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IGuiTile;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockSqueezer;
 import blusunrize.immersiveengineering.common.util.Utils;
 import blusunrize.immersiveengineering.common.util.inventory.IEInventoryHandler;
 import com.google.common.collect.Lists;
@@ -45,7 +44,7 @@ public class TileEntitySqueezer extends TileEntityMultiblockMetal<TileEntitySque
 {
 	public TileEntitySqueezer()
 	{
-		super(MultiblockSqueezer.instance, new int[]{3,3,3}, 16000, true);
+		super(null, new int[]{3,3,3}, 16000, true);
 	}
 	public FluidTank[] tanks = new FluidTank[]{new FluidTank(24000)};
 	public NonNullList<ItemStack> inventory = NonNullList.withSize(11, ItemStack.EMPTY);

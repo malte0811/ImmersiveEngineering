@@ -15,7 +15,6 @@ import blusunrize.immersiveengineering.api.crafting.IMultiblockRecipe;
 import blusunrize.immersiveengineering.api.tool.ConveyorHandler.IConveyorAttachable;
 import blusunrize.immersiveengineering.common.IEContent;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IGuiTile;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockAutoWorkbench;
 import blusunrize.immersiveengineering.common.util.ItemNBTHelper;
 import blusunrize.immersiveengineering.common.util.Utils;
 import blusunrize.immersiveengineering.common.util.inventory.IEInventoryHandler;
@@ -37,7 +36,7 @@ public class TileEntityAutoWorkbench extends TileEntityMultiblockMetal<TileEntit
 {
 	public TileEntityAutoWorkbench()
 	{
-		super(MultiblockAutoWorkbench.instance, new int[]{2,3,3}, 32000, true);
+		super(null, new int[]{2,3,3}, 32000, true);
 	}
 
 	public NonNullList<ItemStack> inventory = NonNullList.withSize(17, ItemStack.EMPTY);

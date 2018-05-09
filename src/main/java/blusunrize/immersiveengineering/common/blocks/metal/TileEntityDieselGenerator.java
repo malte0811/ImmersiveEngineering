@@ -13,7 +13,6 @@ import blusunrize.immersiveengineering.api.crafting.IMultiblockRecipe;
 import blusunrize.immersiveengineering.api.energy.DieselHandler;
 import blusunrize.immersiveengineering.common.Config.IEConfig;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.*;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockDieselGenerator;
 import blusunrize.immersiveengineering.common.util.EnergyHelper;
 import blusunrize.immersiveengineering.common.util.IESounds;
 import blusunrize.immersiveengineering.common.util.Utils;
@@ -42,7 +41,7 @@ public class TileEntityDieselGenerator extends TileEntityMultiblockMetal<TileEnt
 {
 	public TileEntityDieselGenerator()
 	{
-		super(MultiblockDieselGenerator.instance, new int[]{3,5,3}, 0, true);
+		super(null, new int[]{3,5,3}, 0, true);
 	}
 
 	public FluidTank[] tanks = new FluidTank[]{new FluidTank(24000)};

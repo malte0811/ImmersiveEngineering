@@ -13,7 +13,6 @@ import blusunrize.immersiveengineering.api.crafting.RefineryRecipe;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IAdvancedCollisionBounds;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IAdvancedSelectionBounds;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IGuiTile;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockRefinery;
 import blusunrize.immersiveengineering.common.util.Utils;
 import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
@@ -39,7 +38,7 @@ public class TileEntityRefinery extends TileEntityMultiblockMetal<TileEntityRefi
 {
 	public TileEntityRefinery()
 	{
-		super(MultiblockRefinery.instance, new int[]{3, 3, 5}, 16000, true);
+		super(null, new int[]{3, 3, 5}, 16000, true);
 	}
 
 	public FluidTank[] tanks = new FluidTank[]{new FluidTank(24000), new FluidTank(24000), new FluidTank(24000)};

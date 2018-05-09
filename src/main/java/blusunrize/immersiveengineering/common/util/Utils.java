@@ -50,11 +50,8 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.*;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.*;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -1046,7 +1043,7 @@ public class Utils
 		return val;
 	}
 
-	public static boolean areStatesEqual(IBlockState state, IBlockState other, Set<Object> ignoredProperties, boolean includeExtended)
+	public static boolean areStatesEqual(IBlockState state, IBlockState other, Set<?> ignoredProperties, boolean includeExtended)
 	{
 		for(IProperty<?> i : state.getPropertyKeys())
 		{
@@ -1132,6 +1129,41 @@ public class Utils
 	{
 		Vec3d delta = point.subtract(line);
 		return delta.dotProduct(across)/across.lengthSquared();
+	}
+
+	public static EnumFacing applyRotationToFacing(Rotation rot, EnumFacing facing)
+	{
+		switch(rot)
+		{
+			case CLOCKWISE_90:
+				facing = facing.rotateY();
+				break;
+			case CLOCKWISE_180:
+				facing = facing.getOpposite();
+				break;
+			case COUNTERCLOCKWISE_90:
+				facing = facing.rotateYCCW();
+				break;
+		}
+		return facing;
+	}
+
+	public static Rotation getRotationBetweenFacings(EnumFacing orig, EnumFacing to)
+	{
+		if (to==orig)
+			return Rotation.NONE;
+		if (orig.getAxis()==Axis.Y||to.getAxis()==Axis.Y)
+			return null;
+		orig = orig.rotateY();
+		if (orig==to)
+			return Rotation.CLOCKWISE_90;
+		orig = orig.rotateY();
+		if (orig==to)
+			return Rotation.CLOCKWISE_180;
+		orig = orig.rotateY();
+		if (orig==to)
+			return Rotation.COUNTERCLOCKWISE_90;
+		return null;//This shouldn't ever happen
 	}
 
 	public static class InventoryCraftingFalse extends InventoryCrafting

@@ -15,7 +15,6 @@ import blusunrize.immersiveengineering.api.tool.ExcavatorHandler.MineralWorldInf
 import blusunrize.immersiveengineering.common.Config.IEConfig;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IAdvancedCollisionBounds;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IAdvancedSelectionBounds;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockExcavator;
 import blusunrize.immersiveengineering.common.util.FakePlayerUtil;
 import blusunrize.immersiveengineering.common.util.Utils;
 import blusunrize.immersiveengineering.common.util.network.MessageTileSync;
@@ -49,7 +48,7 @@ public class TileEntityExcavator extends TileEntityMultiblockMetal<TileEntityExc
 {
 	public TileEntityExcavator()
 	{
-		super(MultiblockExcavator.instance, new int[]{3,6,3}, 64000, true);
+		super(null, new int[]{3,6,3}, 64000, true);
 	}
 
 	public boolean active = false;

@@ -12,6 +12,7 @@ import blusunrize.immersiveengineering.ImmersiveEngineering;
 import blusunrize.immersiveengineering.common.Config;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IDirectionalTile;
 import blusunrize.immersiveengineering.common.util.EnergyHelper;
+import blusunrize.immersiveengineering.common.util.Utils;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -74,19 +75,7 @@ public abstract class TileEntityIEBase extends TileEntity
 	{
 		if(rot!=Rotation.NONE && this instanceof IDirectionalTile && ((IDirectionalTile)this).canRotate(EnumFacing.UP))
 		{
-			EnumFacing f = ((IDirectionalTile)this).getFacing();
-			switch(rot)
-			{
-				case CLOCKWISE_90:
-					f = f.rotateY();
-					break;
-				case CLOCKWISE_180:
-					f = f.getOpposite();
-					break;
-				case COUNTERCLOCKWISE_90:
-					f = f.rotateYCCW();
-					break;
-			}
+			EnumFacing f = Utils.applyRotationToFacing(rot, ((IDirectionalTile)this).getFacing());
 			((IDirectionalTile)this).setFacing(f);
 			this.markDirty();
 			if(this.pos!=null)

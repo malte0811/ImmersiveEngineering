@@ -268,7 +268,7 @@ public class ItemIETool extends ItemIEBase implements ITool, IGuiItem
 					boolean b = permittedMultiblocks==null;
 					if(permittedMultiblocks!=null)
 						for(String s : permittedMultiblocks)
-							if(mb.getUniqueName().equalsIgnoreCase(s))
+							if(mb.getUniqueName().toString().equalsIgnoreCase(s))
 							{
 								b = true;
 								continue;
@@ -277,7 +277,7 @@ public class ItemIETool extends ItemIEBase implements ITool, IGuiItem
 						break;
 					if(interdictedMultiblocks!=null)
 						for(String s : interdictedMultiblocks)
-							if(mb.getUniqueName().equalsIgnoreCase(s))
+							if(mb.getUniqueName().toString().equalsIgnoreCase(s))
 							{
 								b = false;
 								continue;

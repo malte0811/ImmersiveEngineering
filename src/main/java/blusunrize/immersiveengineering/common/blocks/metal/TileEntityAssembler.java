@@ -15,7 +15,6 @@ import blusunrize.immersiveengineering.api.tool.AssemblerHandler;
 import blusunrize.immersiveengineering.api.tool.ConveyorHandler.IConveyorAttachable;
 import blusunrize.immersiveengineering.common.Config.IEConfig;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IGuiTile;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockAssembler;
 import blusunrize.immersiveengineering.common.util.Utils;
 import blusunrize.immersiveengineering.common.util.inventory.IEInventoryHandler;
 import com.google.common.base.Optional;
@@ -51,7 +50,7 @@ public class TileEntityAssembler extends TileEntityMultiblockMetal<TileEntityAss
 	public boolean isComputerControlled = false;
 	public TileEntityAssembler()
 	{
-		super(MultiblockAssembler.instance, new int[]{3,3,3}, 32000, true);
+		super(null, new int[]{3,3,3}, 32000, true);
 	}
 
 	public FluidTank[] tanks = {new FluidTank(8000),new FluidTank(8000),new FluidTank(8000)};

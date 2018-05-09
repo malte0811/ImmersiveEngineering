@@ -15,7 +15,6 @@ import blusunrize.immersiveengineering.api.energy.immersiveflux.IFluxReceiver;
 import blusunrize.immersiveengineering.common.Config.IEConfig;
 import blusunrize.immersiveengineering.common.IEContent;
 import blusunrize.immersiveengineering.common.blocks.TileEntityMultiblockPart;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockLightningrod;
 import blusunrize.immersiveengineering.common.util.Utils;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.item.ItemStack;
@@ -191,13 +190,13 @@ public class TileEntityLightningrod extends TileEntityMultiblockPart<TileEntityL
 	@Override
 	public ItemStack getOriginalBlock()
 	{
-		if(pos<0)
+		//if(pos<0)
 			return ItemStack.EMPTY;
-		ItemStack s = ItemStack.EMPTY;
-		try{
-			s = MultiblockLightningrod.instance.getStructureManual()[pos/9][pos%9/3][pos%3];
-		}catch(Exception e){e.printStackTrace();}
-		return s.copy();
+		//ItemStack s = ItemStack.EMPTY;
+		//try{
+		//	s = MultiblockLightningrod.instance.getStructureManual()[pos/9][pos%9/3][pos%3];
+		//}catch(Exception e){e.printStackTrace();}
+		//return s.copy();
 	}
 
 	@Override

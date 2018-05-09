@@ -12,7 +12,6 @@ import blusunrize.immersiveengineering.api.crafting.IMultiblockRecipe;
 import blusunrize.immersiveengineering.api.crafting.MetalPressRecipe;
 import blusunrize.immersiveengineering.api.tool.ConveyorHandler.IConveyorAttachable;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IPlayerInteraction;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockMetalPress;
 import blusunrize.immersiveengineering.common.util.IESounds;
 import blusunrize.immersiveengineering.common.util.ListUtils;
 import blusunrize.immersiveengineering.common.util.Utils;
@@ -39,7 +38,7 @@ public class TileEntityMetalPress extends TileEntityMultiblockMetal<TileEntityMe
 {
 	public TileEntityMetalPress()
 	{
-		super(MultiblockMetalPress.instance, new int[]{3,3,1}, 16000, true);
+		super(null, new int[]{3,3,1}, 16000, true);
 	}
 	//	public ItemStack[] inventory = new ItemStack[3];
 	//	public MetalPressRecipe[] curRecipes = new MetalPressRecipe[3];

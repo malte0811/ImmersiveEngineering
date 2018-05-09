@@ -14,7 +14,6 @@ import blusunrize.immersiveengineering.common.Config.IEConfig;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IDynamicTexture;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IHasObjProperty;
 import blusunrize.immersiveengineering.common.blocks.TileEntityMultiblockPart;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockBucketWheel;
 import blusunrize.immersiveengineering.common.util.Utils;
 import blusunrize.immersiveengineering.common.util.network.MessageTileSync;
 import net.minecraft.block.Block;
@@ -51,10 +50,10 @@ public class TileEntityBucketWheel extends TileEntityMultiblockPart<TileEntityBu
 	@Override
 	public ItemStack getOriginalBlock()
 	{
-		if(pos<0)
+		//if(pos<0)
 			return ItemStack.EMPTY;
-		ItemStack s = pos<0?ItemStack.EMPTY: MultiblockBucketWheel.instance.getStructureManual()[pos/7][pos%7][0];
-		return s.copy();
+		//ItemStack s = pos<0?ItemStack.EMPTY: MultiblockBucketWheel.instance.getStructureManual()[pos/7][pos%7][0];
+		//return s.copy();
 	}
 
 	@Override

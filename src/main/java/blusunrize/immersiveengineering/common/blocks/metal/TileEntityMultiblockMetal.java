@@ -62,7 +62,8 @@ public abstract class TileEntityMultiblockMetal<T extends TileEntityMultiblockMe
 	//Absent means no controlling computers
 	public Optional<Boolean> computerOn = Optional.empty();
 
-	public TileEntityMultiblockMetal(IMultiblock mutliblockInstance, int[] structureDimensions, int energyCapacity, boolean redstoneControl)
+	//TODO remove nullable
+	public TileEntityMultiblockMetal(@Nullable IMultiblock mutliblockInstance, int[] structureDimensions, int energyCapacity, boolean redstoneControl)
 	{
 		super(structureDimensions);
 		this.energyStorage = new FluxStorageAdvanced(energyCapacity);
@@ -282,7 +283,7 @@ public abstract class TileEntityMultiblockMetal<T extends TileEntityMultiblockMe
 			int h = (pos/blocksPerLevel);
 			int l = (pos%blocksPerLevel / structureDimensions[2]);
 			int w = (pos%structureDimensions[2]);
-			s = this.mutliblockInstance.getStructureManual()[h][l][w];
+			//s = this.mutliblockInstance.getStructureManual()[h][l][w];
 		}catch(Exception e){e.printStackTrace();}
 		return s.copy();
 	}

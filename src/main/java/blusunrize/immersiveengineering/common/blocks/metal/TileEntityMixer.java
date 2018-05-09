@@ -15,7 +15,6 @@ import blusunrize.immersiveengineering.api.crafting.MixerRecipe;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IAdvancedCollisionBounds;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IAdvancedSelectionBounds;
 import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IGuiTile;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockMixer;
 import blusunrize.immersiveengineering.common.crafting.MixerRecipePotion;
 import blusunrize.immersiveengineering.common.util.Utils;
 import blusunrize.immersiveengineering.common.util.inventory.IEInventoryHandler;
@@ -47,7 +46,7 @@ public class TileEntityMixer extends TileEntityMultiblockMetal<TileEntityMixer,M
 {
 	public TileEntityMixer()
 	{
-		super(MultiblockMixer.instance, new int[]{3,3,3}, 16000, true);
+		super(null, new int[]{3,3,3}, 16000, true);
 	}
 	public MultiFluidTank tank = new MultiFluidTank(8000);
 	public NonNullList<ItemStack> inventory = NonNullList.withSize(8, ItemStack.EMPTY);

@@ -12,7 +12,6 @@ import blusunrize.immersiveengineering.api.crafting.BottlingMachineRecipe;
 import blusunrize.immersiveengineering.api.crafting.IMultiblockRecipe;
 import blusunrize.immersiveengineering.api.tool.ConveyorHandler.IConveyorAttachable;
 import blusunrize.immersiveengineering.common.Config;
-import blusunrize.immersiveengineering.common.blocks.multiblocks.MultiblockBottlingMachine;
 import blusunrize.immersiveengineering.common.util.Utils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -42,7 +41,7 @@ public class TileEntityBottlingMachine extends TileEntityMultiblockMetal<TileEnt
 {
 	public TileEntityBottlingMachine()
 	{
-		super(MultiblockBottlingMachine.instance, new int[]{3,2,3}, 16000, true);
+		super(null, new int[]{3,2,3}, 16000, true);
 	}
 	public FluidTank[] tanks = new FluidTank[]{new FluidTank(8000)};
 	public List<BottlingProcess> bottlingProcessQueue = new ArrayList<>();
