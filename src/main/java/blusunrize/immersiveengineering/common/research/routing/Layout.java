@@ -6,7 +6,7 @@
  * Details can be found in the license file in the root folder of this project
  */
 
-package malte0811.routing;
+package blusunrize.immersiveengineering.common.research.routing;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -90,9 +90,24 @@ public class Layout
 
 	public boolean hasColor(int x, int y, int type, boolean def)
 	{
+		return getColor(x, y, def?type: (type-1))==type;
+	}
+
+	public int getColor(int x, int y, int def)
+	{
 		if(x < 0||x >= containingRects.length||y < 0||y >= containingRects[0].length)
 			return def;
-		return types.getInt(containingRects[x][y])==type;
+		return types.getInt(containingRects[x][y]);
+	}
+
+	public int getWidth()
+	{
+		return containingRects.length;
+	}
+
+	public int getHeight()
+	{
+		return containingRects[0].length;
 	}
 
 	public enum EnumDirection
@@ -167,6 +182,23 @@ public class Layout
 					return DOWN;
 			}
 			return null;
+		}
+
+		public int choose(int xVal, int yVal)
+		{
+			if(x!=0)
+			{
+				return xVal;
+			}
+			else
+			{
+				return yVal;
+			}
+		}
+
+		public boolean isPositive()
+		{
+			return x+y > 0;
 		}
 	}
 }

@@ -6,7 +6,7 @@
  * Details can be found in the license file in the root folder of this project
  */
 
-package malte0811.routing;
+package blusunrize.immersiveengineering.common.research.routing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +28,11 @@ public class Rectangle
 	{
 		this(new int[]{Math.min(xMin, xMax), Math.min(yMin, yMax)},
 				new int[]{Math.max(xMax, xMin), Math.max(yMax, yMin)});
+	}
+
+	public Rectangle(int[] pos)
+	{
+		this(pos, new int[]{pos[0]+1, pos[1]+1});
 	}
 
 	public boolean intersects(Rectangle r)
