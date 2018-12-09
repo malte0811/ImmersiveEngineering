@@ -49,6 +49,7 @@ public class TileEntityBreakerSwitch extends TileEntityImmersiveConnectable impl
 	public int wires = 0;
 	public boolean active = false;
 	public boolean inverted = false;
+	public long lastSwitchedAt = 0;
 	public BlockPos endOfLeftConnection = null;
 
 	@Override
@@ -150,6 +151,13 @@ public class TileEntityBreakerSwitch extends TileEntityImmersiveConnectable impl
 		return ret;
 	}
 
+	public Matrix4 getTransformation()
+	{
+		Matrix4 mat = new Matrix4(facing);
+		mat.translate(.5, .5, 0).rotate(Math.PI/2*rotation, 0, 0, 1).translate(-.5, -.5, 0);
+		return mat;
+	}
+
 	protected void calculateLeftConn(Matrix4 transform)
 	{
 		Vec3d leftVec = transform.apply(new Vec3d(-1, .5, .5)).subtract(0, .5, .5);
@@ -206,6 +214,7 @@ public class TileEntityBreakerSwitch extends TileEntityImmersiveConnectable impl
 		if(!Utils.isHammer(heldItem))
 		{
 			active = !active;
+			lastSwitchedAt = System.currentTimeMillis();
 			world.playSound(null, getPos(), IESounds.direSwitch, SoundCategory.BLOCKS, 2.5F, 1);
 			if(wires > 1)
 				ImmersiveNetHandler.INSTANCE.resetCachedIndirectConnections(world, pos);
@@ -228,7 +237,10 @@ public class TileEntityBreakerSwitch extends TileEntityImmersiveConnectable impl
 	{
 		if(super.receiveClientEvent(id, arg))
 			return true;
+		boolean oldActive = active;
 		this.active = id==1;
+		if(active!=oldActive)
+			lastSwitchedAt = System.currentTimeMillis();
 		this.markContainingBlockForUpdate(null);
 		return true;
 	}

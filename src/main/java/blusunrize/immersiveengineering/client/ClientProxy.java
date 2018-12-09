@@ -502,6 +502,7 @@ public class ClientProxy extends CommonProxy
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTeslaCoil.class, new TileRenderTeslaCoil());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTurret.class, new TileRenderTurret());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBelljar.class, new TileRenderBelljar());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBreakerSwitch.class, new TileRenderBreakerSwitch());
 		// MULTIBLOCKS
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMetalPress.class, new TileRenderMetalPress());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCrusher.class, new TileRenderCrusher());
