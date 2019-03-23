@@ -28,48 +28,20 @@ public class IEClassTransformer implements IClassTransformer
 
 	static
 	{
-		transformerMap.put("net.minecraft.client.model.ModelBiped", new MethodTransformer[]{
-				new MethodTransformer("setRotationAngles", "func_78087_a", "(FFFFFFLnet/minecraft/entity/Entity;)V", methodNode ->
-				{
-					Iterator<AbstractInsnNode> iterator = methodNode.instructions.iterator();
-					while(iterator.hasNext())
-					{
-						AbstractInsnNode anode = iterator.next();
-						if(anode.getOpcode()==Opcodes.RETURN)
-						{
-							InsnList newInstructions = new InsnList();
-							newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-							newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 7));
-							newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "blusunrize/immersiveengineering/client/ClientUtils", "handleBipedRotations", "(Lnet/minecraft/client/model/ModelBiped;Lnet/minecraft/entity/Entity;)V", false));
-							methodNode.instructions.insertBefore(anode, newInstructions);
-						}
-					}
-				})
-		});
-		transformerMap.put("net.minecraft.entity.Entity", new MethodTransformer[]{
-				new MethodTransformer("doBlockCollisions", "func_145775_I", "()V", (m) ->
-				{
-					//INVOKEVIRTUAL net/minecraft/block/Block.onEntityCollision (Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/entity/Entity;)V
-					Iterator<AbstractInsnNode> iterator = m.instructions.iterator();
-					while(iterator.hasNext())
-					{
-						AbstractInsnNode anode = iterator.next();
-						if(anode.getOpcode()==Opcodes.INVOKEVIRTUAL)
-						{
-							MethodInsnNode n = (MethodInsnNode)anode;
-							if(n.name.equals("onEntityCollision")||n.name.equals("func_180634_a"))
-							{
-								InsnList newInstructions = new InsnList();
-								newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 4));
-								newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-								newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-										"blusunrize/immersiveengineering/api/energy/wires/ImmersiveNetHandler", "handleEntityCollision",
-										"(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V", false));
-								m.instructions.insert(n, newInstructions);
-							}
-						}
-					}
-				})
+		Consumer<MethodNode> addThreadingCall = (m)->{
+			InsnList insert = new InsnList();
+			insert.add(new LdcInsnNode("Server thread"));
+			insert.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "blusunrize/immersiveengineering/common/asm/ThreadLogger", "checkForThread",
+					"(Ljava/lang/String;)V", false));
+			m.instructions.insertBefore(m.instructions.get(0), insert);
+		};
+		transformerMap.put("net.minecraft.world.WorldServer", new MethodTransformer[]{
+			new MethodTransformer("updateBlockTick", "func_175654_a",
+					"(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;II)V", addThreadingCall),
+			new MethodTransformer("scheduleBlockUpdate", "func_180497_b",
+					"(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;II)V", addThreadingCall),
+			new MethodTransformer("getPendingBlockUpdates", "func_175712_a",
+					"(Lnet/minecraft/world/gen/structure/StructureBoundingBox;Z)Ljava/util/List;", addThreadingCall),
 		});
 	}
 
