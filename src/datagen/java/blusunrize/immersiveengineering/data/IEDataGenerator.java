@@ -56,6 +56,7 @@ public class IEDataGenerator
 			gen.addProvider(new ConnectorBlockStates(gen, exHelper));
 			gen.addProvider(new ItemModels(gen, exHelper, blockStates));
 			gen.addProvider(new Advancements(gen));
+			gen.addProvider(new ItemRenderProvider(exHelper));
 			// Always keep this as the last provider!
 			gen.addProvider(new RunCompleteHelper());
 		}

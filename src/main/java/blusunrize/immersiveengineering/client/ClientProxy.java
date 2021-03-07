@@ -76,7 +76,6 @@ import net.minecraft.client.renderer.entity.ArmorStandRenderer;
 import net.minecraft.client.renderer.entity.BipedRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
@@ -92,7 +91,6 @@ import net.minecraft.particles.ItemParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.state.Property;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.Axis;
@@ -120,7 +118,6 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -355,29 +352,6 @@ public class ClientProxy extends CommonProxy
 			ClientUtils.destroyBlockIcons[i] = texturemap.getSprite(new ResourceLocation("block/destroy_stage_"+i));
 			Preconditions.checkNotNull(ClientUtils.destroyBlockIcons[i]);
 		}
-	}
-
-	public void registerItemModel(Item item, String path, String renderCase)
-	{
-		Minecraft.getInstance().getItemRenderer().getItemModelMesher().register(item, new ModelResourceLocation(path, renderCase));
-	}
-
-	public static String getPropertyString(Map<Property, Comparable> propertyMap)
-	{
-		StringBuilder stringbuilder = new StringBuilder();
-		for(Entry<Property, Comparable> entry : propertyMap.entrySet())
-		{
-			if(stringbuilder.length()!=0)
-				stringbuilder.append(",");
-			Property iproperty = entry.getKey();
-			Comparable comparable = entry.getValue();
-			stringbuilder.append(iproperty.getName());
-			stringbuilder.append("=");
-			stringbuilder.append(iproperty.getName(comparable));
-		}
-		if(stringbuilder.length()==0)
-			stringbuilder.append("normal");
-		return stringbuilder.toString();
 	}
 
 
