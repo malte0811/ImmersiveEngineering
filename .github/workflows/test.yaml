@@ -23,6 +23,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - uses: openrndr/setup-opengl@v1.1
       - name: Compile IE
         run: ./gradlew compileJava
       - name: Run unit tests
