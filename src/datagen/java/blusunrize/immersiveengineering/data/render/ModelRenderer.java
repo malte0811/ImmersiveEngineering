@@ -1,9 +1,15 @@
 package blusunrize.immersiveengineering.data.render;
 
 import blusunrize.immersiveengineering.common.util.DirectionUtils;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import org.lwjgl.BufferUtils;
@@ -13,9 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 import static org.lwjgl.opengl.GL40.*;
@@ -58,46 +62,50 @@ public class ModelRenderer
 
 	public void renderModel(IBakedModel model, String filename)
 	{
-		// Gather quads
-		List<BakedQuad> quads = new ArrayList<>();
-		for(Direction side : DIRECTIONS_AND_NULL)
-			quads.addAll(model.getQuads(null, side, RANDOM, EmptyModelData.INSTANCE));
 		// Set up GL
 		glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
-		glViewport(0, 0, width, height/2);
-		glActiveTexture(texture.getGlTextureId()+GL_TEXTURE0);
+		glViewport(0, 0, width, height);
+		glBindTexture(GL_TEXTURE_2D, texture.getGlTextureId());
 
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+		glClear(256);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0.0D, 854.0D, 480.0D, 0.0D, -1000.0D, 1000.0D);
+		// TODO figure out where the .25 comes from. Maybe blocks always render too big?
+		glOrtho(-1.25, .25, -1.25, .25, -1000, 1000);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnable(GL_BLEND);
+		RenderHelper.enableStandardItemLighting();
+		RenderHelper.setupGui3DDiffuseLighting();
 
-		glBegin(GL_QUADS);
-		glTexCoord2d(0, 0);
-		glVertex2f(0.0F, 0.0F);
-		glTexCoord2d(0, 1);
-		glVertex2f(0.0F, 480.0F);
-		glTexCoord2d(1, 1);
-		glVertex2f(854.0F, 480.0F);
-		glTexCoord2d(1, 0);
-		glVertex2f(854.0F, 0.0F);
-		glEnd();
+		BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
+		RenderSystem.enableBlend();
+		RenderSystem.enableTexture();
+		RenderSystem.defaultBlendFunc();
+		RenderSystem.enableCull();
+		RenderSystem.enableDepthTest();
 
-		glBindTexture(GL_TEXTURE_2D, renderedTexture);
-		exportTo("icons/", filename);
-		glBindTexture(GL_TEXTURE_2D, texture.getGlTextureId());
-		exportTo("icons/", "atlas.png");
+		// Actually render
+		MatrixStack stack = new MatrixStack();
+		model = model.handlePerspective(TransformType.GUI, stack);
+		stack.scale(1.0F, -1.0F, 1.0F);
+		stack.translate(0, 0.5, 0);
+		bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.BLOCK);
+		for(Direction side : DIRECTIONS_AND_NULL)
+			for(BakedQuad quad : model.getQuads(null, side, RANDOM, EmptyModelData.INSTANCE))
+				bufferbuilder.addQuad(
+						stack.getLast(), quad, 1, 1, 1, LightTexture.packLight(15, 15), OverlayTexture.NO_OVERLAY
+				);
+		bufferbuilder.finishDrawing();
+		WorldVertexBufferUploader.draw(bufferbuilder);
+
+		exportTo("icons/", filename, renderedTexture);
+		exportTo("icons/", "atlas.png", texture.getGlTextureId());
 		System.out.println("glGetError: "+glGetError());
 	}
 
-	private void exportTo(String outputFolder, String fileName)
+	private void exportTo(String outputFolder, String fileName, int texture)
 	{
-		//TODO glBindTexture(GL_TEXTURE_2D, renderedTexture);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		int width = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH);
 		int height = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT);
 		int size = width*height;
