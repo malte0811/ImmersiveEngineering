@@ -1,18 +1,27 @@
 package blusunrize.immersiveengineering.data;
 
+import blusunrize.immersiveengineering.common.blocks.IEBlocks.MetalDevices;
+import blusunrize.immersiveengineering.data.render.ExistingResourceManager;
 import blusunrize.immersiveengineering.data.render.ModelLoader;
 import blusunrize.immersiveengineering.data.render.ModelRenderer;
+import blusunrize.immersiveengineering.data.render.OBJLoaderForDG;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.IModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Map;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11C.GL_FALSE;
@@ -30,14 +39,26 @@ public class ItemRenderProvider implements IDataProvider
 		this.helper = helper;
 	}
 
+	private void registerLoader(ResourceLocation rl, IModelLoader<?> loader)
+	{
+		try
+		{
+			Field f = ModelLoaderRegistry.class.getDeclaredField("loaders");
+			f.setAccessible(true);
+			Map<ResourceLocation, IModelLoader<?>> loaders = (Map<ResourceLocation, IModelLoader<?>>)f.get(null);
+			loaders.put(rl, loader);
+		} catch(NoSuchFieldException|IllegalAccessException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	@Override
 	public void act(@Nonnull DirectoryCache cache) throws IOException
 	{
 		// Hack together something that may work?
 		if(!glfwInit())
-		{
 			throw new RuntimeException("Failed to initialize GLFW???");
-		}
 		RenderSystem.initRenderThread();
 		glfwSetErrorCallback(loggingErrorCallback);
 		glfwDefaultWindowHints();
@@ -46,9 +67,13 @@ public class ItemRenderProvider implements IDataProvider
 		glfwMakeContextCurrent(window);
 		GL.createCapabilities();
 
-		ModelLoader loader = new ModelLoader(helper, cache);
+		IResourceManager resourceManager = new ExistingResourceManager(helper, cache);
+		registerLoader(
+				new ResourceLocation("forge", "obj"), new OBJLoaderForDG(resourceManager)
+		);
+		ModelLoader loader = new ModelLoader(resourceManager);
 		ModelResourceLocation tcLoc = new ModelResourceLocation(
-				Blocks.DIRT.asItem().getRegistryName().toString(), "inventory"
+				MetalDevices.teslaCoil.asItem().getRegistryName().toString(), "inventory"
 		);
 		loader.add(tcLoc);
 		loader.add(new ModelResourceLocation(

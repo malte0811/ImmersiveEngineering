@@ -7,11 +7,9 @@ import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.AtlasTexture.SheetData;
-import net.minecraft.data.DirectoryCache;
 import net.minecraft.profiler.EmptyProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.data.ExistingFileHelper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,9 +25,9 @@ public class ModelLoader
 	private final Map<ResourceLocation, IBakedModel> bakedModels = new Object2ObjectOpenHashMap<>();
 	private final AtlasTexture atlas = new AtlasTexture(ImmersiveEngineering.rl("datagen"));
 
-	public ModelLoader(ExistingFileHelper existingHelper, DirectoryCache cache)
+	public ModelLoader(IResourceManager manager)
 	{
-		this.resourceManager = new ExistingResourceManager(existingHelper, cache);
+		this.resourceManager = manager;
 		this.bakery = new DummyModelBakery(this.resourceManager, BlockColors.init());
 	}
 
